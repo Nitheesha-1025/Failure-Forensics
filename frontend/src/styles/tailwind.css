@@ -1,0 +1,45 @@
+/* Theme + utilities only (no preflight) so existing app CSS stays intact */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@theme {
+  --color-background: #f7f8f6;
+  --color-foreground: #203536;
+  --color-card: #ffffff;
+  --color-card-foreground: #203536;
+  --color-primary: #397b78;
+  --color-primary-hover: #2e6663;
+  --color-primary-foreground: #ffffff;
+  --color-ring-offset: #f7f8f6;
+  --color-secondary: #ddeae5;
+  --color-secondary-foreground: #203536;
+  --color-muted: #eef1ef;
+  --color-muted-foreground: #687a78;
+  --color-accent: #ddeae5;
+  --color-accent-foreground: #203536;
+  --color-destructive: #b84d53;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #d6deda;
+  --color-input: #d6deda;
+  --color-ring: #397b78;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.375rem;
+}
+
+@layer base {
+  .landing-root {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Primary shadcn CTAs render as <a>; global link color (#397B78) matches bg-primary */
+.landing-root a.bg-primary {
+  color: #ffffff;
+}
+.landing-root a.bg-primary:hover,
+.landing-root a.bg-primary:focus-visible,
+.landing-root a.bg-primary:active,
+.landing-root a.bg-primary:visited {
+  color: #ffffff;
+}

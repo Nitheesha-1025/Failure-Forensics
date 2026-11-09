@@ -1,0 +1,68 @@
+/* Soft Porcelain + Deep Teal — centralized design tokens */
+:root {
+  color-scheme: light;
+
+  --bg: #f7f8f6;
+  --bg-elevated: #f7f8f6;
+  --surface: #ffffff;
+  --surface-raised: #fbfbfa;
+
+  --text: #203536;
+  --muted: #687a78;
+  --border: #d6deda;
+  --border-subtle: #e3e9e7;
+
+  --link: #397b78;
+  --primary: #397b78;
+  --primary-hover: #2e6663;
+  --primary-muted: #ddeae5;
+  --nav-selected-bg: #ddeae5;
+  --nav-selected-text: #203536;
+
+  --sidebar-bg: #173e42;
+  --sidebar-fg: #e8eeed;
+  --sidebar-fg-muted: #9eb4b2;
+  --sidebar-border: rgb(255 255 255 / 10%);
+
+  --input-bg: #ffffff;
+
+  --success: #347653;
+  --success-bg: rgb(52 118 83 / 10%);
+  --success-text: #347653;
+
+  --warning: #a16b25;
+  --warning-bg: rgb(161 107 37 / 10%);
+  --warning-text: #a16b25;
+
+  --error: #b84d53;
+  --danger: #b84d53;
+  --error-bg: rgb(184 77 83 / 10%);
+  --error-text: #b84d53;
+
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 2px rgb(32 53 54 / 6%);
+  --shadow-panel: 0 4px 20px rgb(32 53 54 / 7%);
+
+  --sidebar-width: 15.75rem;
+  --sidebar-width-collapsed: 4.25rem;
+  --topbar-height: 3.25rem;
+  --content-max: 76rem;
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  font-size: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

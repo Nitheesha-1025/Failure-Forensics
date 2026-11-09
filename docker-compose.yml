@@ -1,0 +1,122 @@
+# Full-stack local development: frontend + API + PostgreSQL + persistent volumes.
+# Copy docker-compose.env.example to .env and set secrets before `docker compose up`.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: forensics
+      POSTGRES_PASSWORD: forensics
+      POSTGRES_DB: forensics
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forensics -d forensics"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: failure-forensics-api:local
+    environment:
+      DATABASE_URL: postgresql+psycopg://forensics:forensics@postgres:5432/forensics
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (min 32 chars)}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      UPLOAD_DIR: /data/uploads
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-25}
+      FORENSICS_LLM_PROVIDER: ${FORENSICS_LLM_PROVIDER:-zen}
+      OPENCODE_ZEN_API_KEY: ${OPENCODE_ZEN_API_KEY:-}
+      OPENCODE_ZEN_BASE_URL: ${OPENCODE_ZEN_BASE_URL:-https://opencode.ai/zen/v1}
+      OPENCODE_ZEN_MODEL: ${OPENCODE_ZEN_MODEL:-claude-fable-5-1}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+      CLOUDFLARE_MODEL: ${CLOUDFLARE_MODEL:-@cf/meta/llama-3.1-8b-instruct}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_BASE_URL: ${NVIDIA_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      NVIDIA_MODEL: ${NVIDIA_MODEL:-meta/muse-glimmer-30b}
+      NVIDIA_OUTPUT_TOKEN_FLOOR: ${NVIDIA_OUTPUT_TOKEN_FLOOR:-1024}
+      NVIDIA_OUTPUT_TOKEN_CEILING: ${NVIDIA_OUTPUT_TOKEN_CEILING:-8192}
+      NVIDIA_TEMPERATURE: ${NVIDIA_TEMPERATURE:-1}
+      NVIDIA_TOP_P: ${NVIDIA_TOP_P:-0.95}
+      FORENSICS_OPENAI_API_KEY: ${FORENSICS_OPENAI_API_KEY:-}
+      FORENSICS_DB_PATH: /data/forensics.sqlite3
+      FORENSICS_TRACES_DIR: /data/traces
+      FORENSICS_API_HOST: 0.0.0.0
+      FORENSICS_API_PORT: "8090"
+      FORENSICS_LOG_LEVEL: ${FORENSICS_LOG_LEVEL:-INFO}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://localhost:5173}
+    ports:
+      - "8090:8090"
+    volumes:
+      - forensics-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/health').read()",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8090}
+    image: failure-forensics-frontend:local
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+
+  explorer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: failure-forensics-api:local
+    profiles: ["ui"]
+    entrypoint:
+      [
+        "gosu",
+        "forensics",
+        "python",
+        "-m",
+        "streamlit",
+        "run",
+        "/app/src/forensics/explorer.py",
+        "--server.port=8501",
+        "--server.address=0.0.0.0",
+      ]
+    environment:
+      FORENSICS_DB_PATH: /data/forensics.sqlite3
+      FORENSICS_TRACES_DIR: /data/traces
+    ports:
+      - "8501:8501"
+    volumes:
+      - forensics-data:/data
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  forensics-data:
+  pg-data:

@@ -1,0 +1,47 @@
+import type { RunTraceResponse } from "../../types/trace";
+
+export const sampleRunTrace: RunTraceResponse = {
+  run_id: "11111111-1111-1111-1111-111111111111",
+  document_id: "doc-abc",
+  trace: {
+    trace_id: "trace-xyz",
+    schema_version: 1,
+    started_at: "2026-04-08T12:00:00Z",
+    ended_at: "2026-04-08T12:00:01Z",
+    duration_ms: 842,
+    status: "ok",
+    flagged: false,
+    flag_reason: null,
+    final_output: { summary: "hello" },
+    spans: [
+      {
+        span_id: "span-1",
+        trace_id: "trace-xyz",
+        name: "intake",
+        started_at: "2026-04-08T12:00:00Z",
+        ended_at: "2026-04-08T12:00:00.200Z",
+        duration_ms: 200,
+        status: "ok",
+        error: null,
+        confidence: 1,
+        input: { raw_text: "test" },
+        output: { document_id: "doc-abc" },
+        attributes: {},
+      },
+      {
+        span_id: "span-2",
+        trace_id: "trace-xyz",
+        name: "extraction",
+        started_at: "2026-04-08T12:00:00.200Z",
+        ended_at: "2026-04-08T12:00:01Z",
+        duration_ms: 312,
+        status: "error",
+        error: "empty fields",
+        confidence: 0.42,
+        input: { document_id: "doc-abc" },
+        output: {},
+        attributes: { model: "gpt-4o-mini" },
+      },
+    ],
+  },
+};
